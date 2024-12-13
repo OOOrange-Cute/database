@@ -1,0 +1,673 @@
+<!doctype html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NNMusic - 主页</title>
+    <style>
+        /* 基础样式 */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* 顶部导航栏 */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            height: 60px;
+            background: rgba(18, 18, 18, 0.95);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            z-index: 1000;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .navbar .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1db954;
+            text-decoration: none;
+        }
+
+        /* 封面图片容器 */
+        .cover-container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 80px auto 30px auto; /* 顶部导航栏高度 + 底部间距 */
+            padding: 10px;
+        }
+
+        /* 封面图片 */
+        .cover-image {
+            width: 100%;
+            max-height: 300px; /* 缩小高度 */
+            object-fit: cover;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            transition: transform 0.3s;
+        }
+
+        .cover-image:hover {
+            transform: scale(1.02);
+        }
+
+        /* 主内容区 */
+        .main-container {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* 中央搜索框和筛选选项 */
+        .central-search {
+            width: 100%;
+            max-width: 800px;
+            margin: 30px auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .search-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .central-search input[type="text"] {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 30px;
+            background-color: #1e1e1e;
+            color: #fff;
+            font-size: 16px;
+            outline: none;
+            transition: background-color 0.3s;
+        }
+
+        .central-search input[type="text"]:focus {
+            background-color: #2a2a2a;
+        }
+
+        .central-search button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 30px;
+            background-color: #1db954;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            outline: none;
+        }
+
+        .central-search button:hover {
+            background-color: #17a74a;
+        }
+
+        /* 筛选选项 */
+        .filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .filters select {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 10px;
+            background-color: #1e1e1e;
+            color: #fff;
+            font-size: 16px;
+            min-width: 150px;
+            outline: none;
+            transition: background-color 0.3s;
+        }
+
+        .filters select:hover, .filters select:focus {
+            background-color: #2a2a2a;
+        }
+
+        /* 搜索结果区域 */
+        #searchResults {
+            width: 90%;
+            max-width: 1200px;
+            padding: 20px;
+            background-color: #1e1e1e;
+            border-radius: 15px;
+            margin: 20px auto;
+            display: none; /* Initially hidden */
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+
+        .result-section {
+            margin-bottom: 30px;
+        }
+
+        .result-section h3 {
+            margin-bottom: 15px;
+            border-bottom: 2px solid #444;
+            padding-bottom: 8px;
+            color: #1db954;
+        }
+
+        .result-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .result-item {
+            background-color: #2c2c2c;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            transition: transform 0.3s, box-shadow 0.3s;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative; /* 为收藏按钮定位 */
+        }
+
+        .result-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.4);
+        }
+
+        .result-title {
+            font-size: 1.2em;
+            color: #00bcd4;
+            margin-bottom: 10px;
+            text-decoration: none;
+            display: block;
+        }
+
+        .result-info p {
+            margin: 5px 0;
+            font-size: 0.95em;
+            color: #b3b3b3;
+        }
+
+        /* 收藏按钮样式 */
+        .favorite-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: transparent;
+            border: none;
+            color: #fff;
+            font-size: 1.5em;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .favorite-button:hover {
+            color: #1db954;
+        }
+
+        /* 收藏后的样式 */
+        .favorite-button.favorited {
+            color: #e0245e; /* 红色 */
+        }
+
+        /* 使用伪元素显示心形符号 */
+        .favorite-button::before {
+            content: '♡'; /* 空心心形符号 */
+            transition: color 0.3s;
+        }
+
+        .favorite-button.favorited::before {
+            content: '♥'; /* 实心心形符号 */
+        }
+
+        /* 推荐内容 */
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section h2 {
+            margin-bottom: 20px;
+            border-bottom: 2px solid #444;
+            padding-bottom: 10px;
+            color: #1db954;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: linear-gradient(145deg, #2c2c2e, #1c1c1e);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            transition: transform 0.3s, box-shadow 0.3s;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.6);
+        }
+
+        .card h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: #00bcd4;
+        }
+
+        .card a {
+            text-decoration: none;
+            color: #1db954;
+            font-weight: bold;
+            transition: color 0.3s;
+        }
+
+        .card a:hover {
+            color: #17a74a;
+        }
+
+        /* 固定右下角按钮 */
+        .fixed-buttons {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 1000;
+        }
+
+        .fixed-buttons a {
+            padding: 12px 20px;
+            background: linear-gradient(145deg, #6b6b6b, #000000);
+            border: none;
+            border-radius: 30px;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+            text-decoration: none;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+
+        .fixed-buttons a:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 0 15px;
+            }
+
+            .cover-container {
+                width: 95%;
+            }
+
+            .cover-image {
+                max-height: 200px;
+            }
+
+            .grid-container, .result-list {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            }
+
+            .fixed-buttons a {
+                padding: 10px 18px;
+                font-size: 14px;
+            }
+
+            .filters select {
+                min-width: 120px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .navbar {
+                flex-direction: column;
+                height: auto;
+                padding: 10px;
+            }
+
+            .navbar .logo {
+                margin-bottom: 10px;
+            }
+
+            .cover-container {
+                width: 100%;
+            }
+
+            .cover-image {
+                max-height: 150px;
+            }
+
+            .grid-container, .result-list {
+                grid-template-columns: 1fr;
+            }
+
+            .filters select {
+                min-width: 100px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <div class="navbar">
+        <a href="/home" class="logo">NNMusic</a>
+    </div>
+
+    <!-- 封面图片容器 -->
+    <div class="cover-container">
+        <img src="{{ url_for('static', filename='images/cover.png') }}" alt="NNMusic 封面图片" class="cover-image">
+    </div>
+
+    <!-- 主内容区 -->
+    <div class="main-container">
+        <!-- 中央搜索框和筛选选项 -->
+        <div class="central-search">
+            <div class="search-row">
+                <input type="text" id="searchInput" placeholder="搜索专辑、艺术家、歌曲">
+                <button onclick="search()">搜索</button>
+            </div>
+            <div class="filters">
+                <select id="filterCountry">
+                    <option value="">所有国籍</option>
+                    {% for country in countries %}
+                        <option value="{{ country }}">{{ country }}</option>
+                    {% endfor %}
+                </select>
+
+                <select id="filterGender">
+                    <option value="">所有性别</option>
+                    {% for gender in genders %}
+                        <option value="{{ gender }}">{{ gender }}</option>
+                    {% endfor %}
+                </select>
+
+                <select id="filterLanguage">
+                    <option value="">所有语言</option>
+                    {% for language in languages %}
+                        <option value="{{ language }}">{{ language }}</option>
+                    {% endfor %}
+                </select>
+
+                <select id="filterGenre">
+                    <option value="">所有风格</option>
+                    {% for genre in genres %}
+                        <option value="{{ genre }}">{{ genre }}</option>
+                    {% endfor %}
+                </select>
+
+                <button onclick="search()">应用筛选</button>
+            </div>
+        </div>
+
+        <!-- 搜索结果区域 -->
+        <div id="searchResults">
+            <!-- 搜索结果将动态插入这里 -->
+        </div>
+
+        <!-- 推荐内容 -->
+        <div class="section">
+            <h2>推荐内容</h2>
+            <div class="grid-container">
+                <div class="card">
+                    <h3>推荐专辑</h3>
+                    <a href="/albums">查看所有专辑</a>
+                </div>
+                <div class="card">
+                    <h3>推荐歌手</h3>
+                    <a href="/artists">查看所有歌手</a>
+                </div>
+                <div class="card">
+                    <h3>推荐歌曲</h3>
+                    <a href="/songs">查看所有歌曲</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 固定右下角按钮 -->
+    <div class="fixed-buttons">
+        <a href="/profile/{{ user_id }}" class="profile-button">我的资料</a>
+        <a href="/favorites/{{ user_name }}" class="favorites-button">我的收藏</a>
+    </div>
+
+    <script>
+        const user_id = {{ user_id }};
+        const user_name = "{{ user_name }}";  // 注意字符串需要用引号包裹
+        const Favorites = {{ Favorites | tojson }}; // 转换为 JSON 格式，适合复杂对象或数组
+
+        // 搜索功能
+        function search() {
+            const query = document.getElementById('searchInput').value;
+            const country = document.getElementById('filterCountry').value;
+            const gender = document.getElementById('filterGender').value;
+            const language = document.getElementById('filterLanguage').value;
+            const genre = document.getElementById('filterGenre').value;
+
+            console.log(`搜索参数 - 查询: '${query}', 国籍: '${country}', 性别: '${gender}', 语言: '${language}', 风格: '${genre}'`);
+
+            // 构建查询参数
+            let url = `/search?query=${encodeURIComponent(query)}&country=${encodeURIComponent(country)}&gender=${encodeURIComponent(gender)}&language=${encodeURIComponent(language)}&genre=${encodeURIComponent(genre)}`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    // 处理并显示搜索结果
+                    const resultsContainer = document.getElementById('searchResults');
+                    resultsContainer.innerHTML = ''; // 清空先前的搜索结果
+
+                    if (query.trim() === '' && !country && !gender && !language && !genre) {
+                        // 如果没有搜索或筛选，隐藏搜索结果
+                        resultsContainer.style.display = 'none';
+                        return;
+                    }
+
+                    resultsContainer.style.display = 'block'; // 显示搜索结果区域
+
+                    let hasResults = false;
+
+                    // 显示歌曲
+                    if (data.songs && data.songs.length > 0) {
+                        const songSection = document.createElement('div');
+                        songSection.className = 'result-section';
+                        songSection.innerHTML = '<h3>歌曲</h3>';
+                        const songList = document.createElement('div');
+                        songList.className = 'result-list';
+
+                        data.songs.forEach(song => {
+                            const songDiv = document.createElement('div');
+                            songDiv.className = 'result-item';
+                            songDiv.innerHTML = `
+                                <a href="/play/${song.song_id}" class="result-title">${song.title}</a>
+                                <div class="result-info">
+                                    <p>艺术家: ${song.artist_name}</p>
+                                    <p>专辑: ${song.album_title}</p>
+                                    <p>风格: ${song.genre}</p>
+                                    <p>语言: ${song.language}</p>
+                                </div>
+                            `;
+                            const favoriteButton = document.createElement('button');
+                            favoriteButton.className = 'favorite-button';
+                            if (song.is_favorited) {
+                                favoriteButton.classList.add('favorited');
+                            }
+                            favoriteButton.onclick = function(event) {
+                                toggleFavorite(this, user_name, song.title, song.artist_name);
+                                event.stopPropagation();
+                            };
+                            songDiv.appendChild(favoriteButton);
+                            songList.appendChild(songDiv);
+                        });
+
+                        songSection.appendChild(songList);
+                        resultsContainer.appendChild(songSection);
+                        hasResults = true;
+                    }
+
+                    // 显示专辑
+                    if (data.albums && data.albums.length > 0) {
+                        const albumSection = document.createElement('div');
+                        albumSection.className = 'result-section';
+                        albumSection.innerHTML = '<h3>专辑</h3>';
+                        const albumList = document.createElement('div');
+                        albumList.className = 'result-list';
+
+                        data.albums.forEach(album => {
+                            const albumDiv = document.createElement('div');
+                            albumDiv.className = 'result-item';
+                            albumDiv.innerHTML = `
+                                <a href="/album/${album.album_id}/songs" class="result-title">${album.title}</a>
+                                <div class="result-info">
+                                    <p>艺术家: ${album.artist_name}</p>
+                                    <p>歌曲数量: ${album.song_count || '未知'}</p>
+                                </div>
+                            `;
+                            albumList.appendChild(albumDiv);
+                        });
+
+                        albumSection.appendChild(albumList);
+                        resultsContainer.appendChild(albumSection);
+                        hasResults = true;
+                    }
+
+                    // 显示艺术家
+                    if (data.artists && data.artists.length > 0) {
+                        const artistSection = document.createElement('div');
+                        artistSection.className = 'result-section';
+                        artistSection.innerHTML = '<h3>艺术家</h3>';
+                        const artistList = document.createElement('div');
+                        artistList.className = 'result-list';
+
+                        data.artists.forEach(artist => {
+                            const artistDiv = document.createElement('div');
+                            artistDiv.className = 'result-item';
+                            artistDiv.innerHTML = `
+                                <a href="/artist/${artist.artist_id}/songs" class="result-title">${artist.name}</a>
+                                <div class="result-info">
+                                    <p>国籍: ${artist.country}</p>
+                                    <p>性别: ${artist.gender}</p>
+                                    <p>简介: ${artist.bio || '无'}</p>
+                                </div>
+                            `;
+                            artistList.appendChild(artistDiv);
+                        });
+
+                        artistSection.appendChild(artistList);
+                        resultsContainer.appendChild(artistSection);
+                        hasResults = true;
+                    }
+
+                    // 如果没有找到任何结果
+                    if (!hasResults) {
+                        resultsContainer.innerHTML = '<p>没有找到相关内容。</p>';
+                        console.log("搜索结果为空。");
+                    } else {
+                        console.log(`显示搜索结果: ${hasResults ? "有" : "无"}。`);
+                    }
+                })
+                .catch(error => {
+                    console.error('搜索时发生错误:', error);
+                });
+        }
+
+        // 切换收藏功能
+        function toggleFavorite(button, userName, songName, artistName) {
+            fetch('/toggle_favorite', {  // 向后端发送切换收藏请求
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    user_name: userName,
+                    song_name: songName,
+                    artist_name: artistName
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    if (data.action === 'added') {
+                        // 添加收藏成功
+                        button.classList.add('favorited');
+                        showNotification(`已添加 "${songName}" 到收藏!`);
+                    } else if (data.action === 'removed') {
+                        // 移除收藏成功
+                        button.classList.remove('favorited');
+                        showNotification(`已移除 "${songName}" 从收藏!`);
+                    }
+                } else {
+                    showNotification(`操作失败: ${data.message || '未知错误'}`, true);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('操作失败，请稍后重试。', true);
+            });
+        }
+
+        // 显示通知
+        function showNotification(message, isError = false) {
+            // 创建通知元素
+            const notification = document.createElement('div');
+            notification.textContent = message;
+            notification.style.position = 'fixed';
+            notification.style.bottom = '100px';
+            notification.style.right = '20px';
+            notification.style.padding = '10px 20px';
+            notification.style.borderRadius = '5px';
+            notification.style.backgroundColor = isError ? '#e0245e' : '#1db954';
+            notification.style.color = '#fff';
+            notification.style.boxShadow = '0 4px 8px rgba(0,0,0,0.3)';
+            notification.style.opacity = '0';
+            notification.style.transition = 'opacity 0.5s ease';
+
+            // 添加到 body
+            document.body.appendChild(notification);
+
+            // 触发淡入
+            setTimeout(() => {
+                notification.style.opacity = '1';
+            }, 10);
+
+            // 3秒后淡出并移除
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 500);
+            }, 3000);
+        }
+
+        // 绑定中央搜索按钮点击事件
+        document.querySelector('.central-search button').addEventListener('click', function(e) {
+            search();
+        });
+
+        // 绑定中央搜索输入框的回车键事件
+        document.querySelector('.central-search input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                search();
+            }
+        });
+    </script>
+</body>
+</html>

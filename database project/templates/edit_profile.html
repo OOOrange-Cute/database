@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>编辑个人资料</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #333;
+            color: #fff;
+            padding: 20px;
+        }
+        .edit-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #444;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .edit-container h2 {
+            text-align: center;
+        }
+        .edit-form {
+            margin-top: 20px;
+        }
+        .edit-form label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 18px;
+        }
+        .edit-form input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: none;
+            border-radius: 5px;
+        }
+        .submit-button {
+            width: 100%;
+            padding: 10px;
+            background-color: #555;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 18px;
+            cursor: pointer;
+        }
+        .submit-button:hover {
+            background-color: #666;
+        }
+        .back-button {
+            display: block;
+            width: 100px;
+            margin: 10px auto 0;
+            padding: 10px;
+            background-color: #555;
+            color: #fff;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .back-button:hover {
+            background-color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="edit-container">
+        <h2>编辑个人资料</h2>
+        <form action="{{ url_for('update_profile', user_id=user_info[0]) }}" method="POST" class="edit-form">
+            <label for="username">用户名：</label>
+            <input type="text" id="username" name="username" value="{{ user_info[1] }}" required>
+
+            <label for="email">邮箱：</label>
+            <input type="email" id="email" name="email" value="{{ user_info[3] }}" required>
+
+            <label for="tel">电话：</label>
+            <input type="tel" id="tel" name="tel" value="{{ user_info[4] }}" required>
+
+            <label for="year">出生年份：</label>
+            <input type="number" id="year" name="year" value="{{ user_info[5] }}" min="1900" max="2024" required>
+
+            <label for="month">出生月份：</label>
+            <input type="number" id="month" name="month" value="{{ user_info[6] }}" min="1" max="12" required>
+
+            <label for="day">出生日：</label>
+            <input type="number" id="day" name="day" value="{{ user_info[7] }}" min="1" max="31" required>
+
+            <button type="submit" class="submit-button">保存修改</button>
+        </form>
+        <a href="{{ url_for('profile', user_id=user_info[0]) }}" class="back-button">返回</a>
+    </div>
+</body>
+</html>

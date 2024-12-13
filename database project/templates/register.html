@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NNMusic - 注册</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: #1d1d1f;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .register-container {
+            width: 350px;
+            padding: 30px;
+            background: #2c2c2e;
+            border-radius: 15px;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            color: #1db954;
+        }
+
+        input[type="text"], input[type="password"], input[type="email"], input[type="tel"] {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 5px;
+            box-sizing: border-box;
+            background-color: #3a3a3c;
+            color: #fff;
+            font-size: 16px;
+            outline: none;
+            transition: background-color 0.3s;
+        }
+
+        input[type="text"]:focus, input[type="password"]:focus, input[type="email"]:focus, input[type="tel"]:focus {
+            background-color: #4a4a4c;
+        }
+
+        select {
+            width: 32%;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            box-sizing: border-box;
+            margin: 10px 0;
+            background-color: #3a3a3c;
+            color: #fff;
+            font-size: 16px;
+            outline: none;
+            transition: background-color 0.3s;
+        }
+
+        select:focus {
+            background-color: #4a4a4c;
+        }
+
+        .date-container {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #1db954;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #17a74a;
+        }
+
+        .register-button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            margin-top: 15px;
+            border-radius: 5px;
+            font-size: 14px;
+            width: 100%;
+            transition: background-color 0.3s;
+            cursor: pointer;
+        }
+
+        .register-button:hover {
+            background-color: #0056b3;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #333;
+            padding: 20px;
+            border-radius: 5px;
+            text-align: center;
+            width: 300px;
+        }
+
+        .modal button {
+            padding: 10px 20px;
+            background-color: #1db954;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 10px;
+        }
+
+        .modal button:hover {
+            background-color: #17a74a;
+        }
+
+        .flash-success {
+            background-color: #4caf50;
+        }
+
+        .flash-error {
+            background-color: #f44336;
+        }
+    </style>
+</head>
+<body>
+    <div class="register-container">
+        <h2>注册</h2>
+
+        <!-- 注册表单 -->
+        <form id="registerForm" action="/register" method="POST">
+            <input type="text" id="user_name" name="user_name" placeholder="用户名" required><br>
+            <input type="password" id="password" name="password" placeholder="密码" required><br>
+            <input type="email" id="email" name="email" placeholder="电子邮件" required><br>
+            <input type="tel" id="tel" name="tel" placeholder="电话号码" required><br>
+
+            <div class="date-container">
+                <select id="year" name="year" required>
+                    <option value="">出生年份</option>
+                    {% for year in range(1900, 2025) %}
+                        <option value="{{ year }}">{{ year }}</option>
+                    {% endfor %}
+                </select>
+
+                <select id="month" name="month" required>
+                    <option value="">出生月份</option>
+                    {% for month in range(1, 13) %}
+                        <option value="{{ month }}">{{ month }}</option>
+                    {% endfor %}
+                </select>
+
+                <select id="day" name="day" required>
+                    <option value="">出生日期</option>
+                    {% for day in range(1, 32) %}
+                        <option value="{{ day }}">{{ day }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <button type="submit">注册</button>
+        </form>
+    </div>
+
+    <!-- 弹窗 -->
+    <div id="flashModal" class="modal">
+        <div class="modal-content">
+            <p id="flashMessage" class="flash-message"></p>
+            <button onclick="handleFlashMessage()">确定</button>
+        </div>
+    </div>
+
+    <script>
+        // 在页面加载时检查是否有闪现消息
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                // 设置消息内容
+                const message = "{{ messages[0][1] }}";
+                const messageClass = "{{ messages[0][0] }}";
+
+                // 弹窗显示消息
+                const modal = document.getElementById('flashModal');
+                const flashMessage = document.getElementById('flashMessage');
+                flashMessage.textContent = message;
+                flashMessage.classList.add(messageClass);  // 根据消息类型添加样式
+
+                // 弹窗显示
+                modal.style.display = 'flex';
+             {% endif %}
+        {% endwith %}
+
+        // 点击“确定”按钮后跳转到相应页面
+        function handleFlashMessage(){
+            var flashMessage = document.getElementById('flashMessage').innerText;
+            if (flashMessage.includes("注册成功")) {
+                window.location.href = '/login';
+            } else {
+                window.location.href = '/register';
+            }
+        }
+    </script>
+</body>
+</html>

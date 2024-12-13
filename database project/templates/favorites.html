@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ user_name }}的收藏歌单</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #333;
+            color: #fff;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #444;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+
+        .container h2 {
+            text-align: center;
+            color: #1db954;
+        }
+
+        .song-item {
+            background: #555;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            display: flex;
+            justify-content: space-between; /* 保证歌曲信息与按钮在两侧 */
+            align-items: center; /* 保证对齐 */
+            position: relative; /* 允许绝对定位按钮 */
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+            transition: background-color 0.3s;
+        }
+
+        .song-item:hover {
+            background-color: #666;
+        }
+
+        .song-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .remove-button {
+            background-color: #d9534f;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+            position: absolute;
+            top: 50%;  /* 垂直居中按钮 */
+            right: 10px;  /* 使按钮靠近右侧边框 */
+            transform: translateY(-50%); /* 垂直居中对齐 */
+            transition: background-color 0.3s;
+        }
+
+        .remove-button:hover {
+            background-color: #c9302c;
+        }
+
+        .nav-button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: linear-gradient(145deg, #6b6b6b, #000000);
+            border: none;
+            border-radius: 5px;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .nav-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+    <h2>{{ user_name }} 的收藏歌单</h2>
+
+    {% if songs %}
+        {% for song in songs %}
+            <div class="song-item">
+                <div class="song-details">
+                    <a href="/play/{{ song.song_id }}" style="color: #fff; text-decoration: none;">
+                        歌曲: <strong>{{ song.title }}</strong><br>
+                        艺术家: <strong>{{ song.artist_name }}</strong>
+                    </a>
+                </div>
+                <!-- 移除按钮 -->
+                <button class="remove-button" onclick="removeFavorite('{{ user_name }}', '{{ song.title }}')">移除</button>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>您还没有收藏任何歌曲。</p>
+    {% endif %}
+    <button class="nav-button" onclick="navigateHome()">返回主页</button>
+</div>
+
+    <script>
+        // 移除收藏
+        function removeFavorite(userName, songName) {
+            fetch('/remove_from_favorites', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ user_name: userName, song_name: songName })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('歌曲已移除收藏！');
+                    location.reload(); // 刷新页面
+                } else {
+                    alert('移除失败：' + (data.message || '未知错误'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('移除失败，请稍后重试。');
+            });
+        }
+
+        // 返回主页
+        function navigateHome() {
+            window.location.href = '/home';
+        }
+    </script>
+</body>
+</html>

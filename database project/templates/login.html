@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NNMusic - 登录</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: #1d1d1f;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .login-container {
+            width: 350px; /* 增大登录框的宽度 */
+            padding: 30px;
+            background: #2c2c2e;
+            border-radius: 15px;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            color: #1db954;
+        }
+
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 12px; /* 增加输入框的高度 */
+            margin: 10px 0;
+            border: none;
+            border-radius: 5px;
+            box-sizing: border-box;
+            background-color: #3a3a3c;
+            color: #fff;
+            font-size: 16px;
+            outline: none;
+            transition: background-color 0.3s;
+        }
+
+        input[type="text"]:focus, input[type="password"]:focus {
+            background-color: #4a4a4c;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px; /* 增加按钮的高度 */
+            background-color: #1db954;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #17a74a;
+        }
+
+        .register-button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            margin-top: 15px;
+            border-radius: 5px;
+            font-size: 14px;
+            width: 100%;
+            transition: background-color 0.3s;
+            cursor: pointer;
+        }
+
+        .register-button:hover {
+            background-color: #0056b3;
+        }
+
+        .default-login-button {
+            margin-top: 15px;
+            padding: 10px 20px;
+            background-color: #e0245e;
+            border: none;
+            border-radius: 5px;
+            color: #fff;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+            width: 100%;
+        }
+
+        .default-login-button:hover {
+            background-color: #c21c4e;
+        }
+
+        .link {
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #333;
+            padding: 20px;
+            border-radius: 5px;
+            text-align: center;
+            width: 300px;
+        }
+
+        .modal button {
+            padding: 10px 20px;
+            background-color: #1db954;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .modal button:hover {
+            background-color: #17a74a;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h2>登录</h2>
+        <form id="loginForm" action="/login" method="post">
+            <input type="text" id="user_name" name="user_name" placeholder="用户名" required><br>
+            <input type="password" id="password" name="password" placeholder="密码" required><br>
+            <button type="submit">登录</button>
+        </form>
+        <button class="default-login-button" onclick="defaultLogin()">使用默认账号登录</button>
+        <a href="/register">
+            <button class="register-button">注册</button>
+        </a >
+    </div>
+
+    <!-- 弹窗 -->
+    <div id="flashModal" class="modal">
+        <div class="modal-content">
+            <p id="flashMessage" class="flash-message"></p >
+            <button onclick="handleFlashMessage()">确定</button>
+        </div>
+    </div>
+
+    <script>
+        // 在页面加载时检查是否有闪现消息
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                // 设置消息内容
+                const message = "{{ messages[0][1] }}";
+                const messageClass = "{{ messages[0][0] }}";
+
+                // 弹窗显示消息
+                const modal = document.getElementById('flashModal');
+                const flashMessage = document.getElementById('flashMessage');
+                flashMessage.textContent = message;
+                flashMessage.classList.add(messageClass);  // 根据消息类型添加样式
+
+                // 弹窗显示
+                modal.style.display = 'flex';
+             {% endif %}
+        {% endwith %}
+
+        // 处理弹窗关闭并重定向
+        function handleFlashMessage(){
+            var flashMessage = document.getElementById('flashMessage').innerText;
+            if (flashMessage.includes("登录成功！") || flashMessage.includes("默认账号登录成功！")) {
+                window.location.href = '/home';
+            } else if (flashMessage.includes("用户名或密码错误")) {
+                window.location.href = '/login';
+            }
+        }
+
+        // 使用默认账号登录
+        function defaultLogin() {
+            // 设置默认用户名和密码
+            document.getElementById('user_name').value = 'Tank';
+            document.getElementById('password').value = 'Tank2028085771';
+            // 提交表单
+            document.getElementById('loginForm').submit();
+        }
+    </script>
+</body>
+</html>
